@@ -1,0 +1,496 @@
+<!DOCTYPE html><html lang="fr" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Interface de Monitoring - Gestion des Déchets</title>
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter for a modern look -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Lucide Icons (CDN for common icons) -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style data-purpose="global-styles">
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+  </style>
+<style data-purpose="chart-placeholders">
+    /* Styling for the simulated donut chart */
+    .donut-chart {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #22c55e 0% 54.9%, 
+        #eab308 54.9% 81.7%, 
+        #f97316 81.7% 93.5%, 
+        #ef4444 93.5% 100%
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .donut-hole {
+      width: 100px;
+      height: 100px;
+      background-color: white;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+<!-- BEGIN: MainSidebar -->
+<aside class="w-72 bg-[#0a1128] text-white flex flex-col shrink-0" data-purpose="navigation-sidebar">
+<!-- Sidebar Header -->
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-green-500 rounded flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-white"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="font-bold text-xl tracking-tight">BENINCLEAN</span>
+</div>
+</div>
+<!-- Navigation Menu -->
+<nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+<a class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg text-white font-medium border-l-4 border-green-500" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard w-5 h-5"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg>
+<span class="">Tableau de bord</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin w-5 h-5"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+<span class="">Carte de monitoring</span>
+</a>
+<div class="relative">
+<button class="w-full flex items-center justify-between px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+<div class="flex items-center gap-3">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="container" aria-hidden="true" class="lucide lucide-container w-5 h-5"><path d="M22 7.7c0-.6-.4-1.2-.8-1.5l-6.3-3.9a1.72 1.72 0 0 0-1.7 0l-10.3 6c-.5.2-.9.8-.9 1.4v6.6c0 .5.4 1.2.8 1.5l6.3 3.9a1.72 1.72 0 0 0 1.7 0l10.3-6c.5-.3.9-1 .9-1.5Z"></path><path d="M10 21.9V14L2.1 9.1"></path><path d="m10 14 11.9-6.9"></path><path d="M14 19.8v-8.1"></path><path d="M18 17.5V9.4"></path></svg>
+<span class="">Bacs</span>
+</div>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down w-4 h-4"><path d="m6 9 6 6 6-6"></path></svg>
+</button>
+</div>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bell" aria-hidden="true" class="lucide lucide-bell w-5 h-5"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"></path></svg>
+<span class="">Alertes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="truck" aria-hidden="true" class="lucide lucide-truck w-5 h-5"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+<span class="">Itinéraires</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar" aria-hidden="true" class="lucide lucide-calendar w-5 h-5"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
+<span class="">Collectes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bar-chart-3" aria-hidden="true" class="lucide lucide-bar-chart-3 w-5 h-5"><path d="M3 3v16a2 2 0 0 0 2 2h16"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>
+<span class="">Rapports &amp; Statistiques</span>
+</a>
+<div class="pt-8 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Paramétrage</div>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings w-5 h-5"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
+<span class="">Paramètres</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users w-5 h-5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+<span class="">Utilisateurs</span>
+</a>
+</nav>
+<!-- Logout -->
+<div class="p-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors" href="#">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" class="lucide lucide-log-out w-5 h-5"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg>
+<span class="">Déconnexion</span>
+</a>
+</div>
+</aside>
+<!-- END: MainSidebar -->
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-hidden bg-[#0a1128]">
+<!-- BEGIN: TopHeader -->
+<header class="h-16 flex items-center justify-center border-b border-white/5 shrink-0" data-purpose="main-header">
+
+</header>
+<!-- END: TopHeader -->
+<div class="flex-1 overflow-y-auto p-6 bg-slate-100 rounded-tl-3xl shadow-2xl custom-scrollbar" data-purpose="content-scroll-container">
+<!-- BEGIN: KPI Row -->
+<section class="grid grid-cols-5 gap-4 mb-6" data-purpose="kpi-section">
+<!-- KPI Card 1 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layers" aria-hidden="true" class="lucide lucide-layers w-6 h-6 text-blue-600"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 font-medium">Total des bacs</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-slate-800">142</span>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevrons-right" aria-hidden="true" class="lucide lucide-chevrons-right w-4 h-4 text-slate-300"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">Tous les bacs installés</p>
+</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2 w-6 h-6 text-green-600"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 font-medium">Bacs normaux</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-slate-800">78</span>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevrons-right" aria-hidden="true" class="lucide lucide-chevrons-right w-4 h-4 text-slate-300"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">54.9% du total</p>
+</div>
+</div>
+<!-- KPI Card 3 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-yellow-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" aria-hidden="true" class="lucide lucide-alert-triangle w-6 h-6 text-yellow-600"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 font-medium">Bacs presque pleins</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-slate-800">38</span>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevrons-right" aria-hidden="true" class="lucide lucide-chevrons-right w-4 h-4 text-slate-300"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">26.8% du total</p>
+</div>
+</div>
+<!-- KPI Card 4 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-circle" aria-hidden="true" class="lucide lucide-alert-circle w-6 h-6 text-red-600"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 font-medium">Bacs pleins</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-slate-800">26</span>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevrons-right" aria-hidden="true" class="lucide lucide-chevrons-right w-4 h-4 text-slate-300"><path d="m6 17 5-5-5-5"></path><path d="m13 17 5-5-5-5"></path></svg>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">18.3% du total</p>
+</div>
+</div>
+<!-- KPI Card 5 -->
+<div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+<div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="truck" aria-hidden="true" class="lucide lucide-truck w-6 h-6 text-blue-600"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+</div>
+<div class="flex-1">
+<p class="text-xs text-slate-500 font-medium">Collectes aujourd'hui</p>
+<div class="flex items-center justify-between">
+<span class="text-2xl font-bold text-slate-800">12</span>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">Tournées en cours</p>
+</div>
+</div>
+</section>
+<!-- END: KPI Row -->
+<div class="grid grid-cols-12 gap-6">
+<!-- BEGIN: MapSection -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[500px]" data-purpose="real-time-map">
+<!-- Header -->
+<div class="p-4 border-b border-slate-100 flex items-center justify-between">
+<h2 class="font-semibold text-slate-800">Carte de monitoring en temps réel</h2>
+<select class="text-xs border-slate-200 rounded-lg focus:ring-green-500 focus:border-green-500 px-3 py-1.5">
+<option>Tous les bacs</option>
+<option>Bacs pleins</option>
+</select>
+</div>
+<!-- Map Container -->
+<div class="flex-1 relative bg-slate-200">
+<!-- Using the provided image for the map area -->
+
+<!-- Zoom Controls (Mockup) -->
+<div class="absolute right-4 top-4 flex flex-col gap-1 shadow-lg">
+<button class="bg-white w-8 h-8 flex items-center justify-center rounded-t-md border-b border-slate-100 text-slate-600 font-bold hover:bg-slate-50">+</button>
+<button class="bg-white w-8 h-8 flex items-center justify-center rounded-b-md text-slate-600 font-bold hover:bg-slate-50">-</button>
+</div>
+<div class="absolute right-4 top-24 shadow-lg">
+<button class="bg-white w-8 h-8 flex items-center justify-center rounded-md text-slate-600 hover:bg-slate-50">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="locate-fixed" aria-hidden="true" class="lucide lucide-locate-fixed w-4 h-4"><line x1="2" x2="5" y1="12" y2="12"></line><line x1="19" x2="22" y1="12" y2="12"></line><line x1="12" x2="12" y1="2" y2="5"></line><line x1="12" x2="12" y1="19" y2="22"></line><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+</div>
+<!-- Map Legend Overlay -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-slate-200 flex items-center gap-6 text-[10px] font-medium text-slate-600">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+<span class="">0 - 60%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+<span class="">60 - 80%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
+<span class="">80 - 100%</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+<span class="">100% (Plein)</span>
+</div>
+<div class="flex items-center gap-1.5 border-l border-slate-200 pl-4">
+<span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+<span class="">Véhicule de collecte</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Bottom Row of Charts -->
+<div class="grid grid-cols-2 gap-6">
+<!-- BEGIN: DonutChartSection -->
+<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200" data-purpose="distribution-chart">
+<h2 class="font-semibold text-slate-800 mb-6">Répartition des bacs par niveau</h2>
+<div class="flex items-center gap-8">
+<div class="donut-chart">
+<div class="donut-hole">
+<span class="text-2xl font-bold text-slate-800 leading-none">142</span>
+<span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Total</span>
+</div>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-slate-600">Normaux (0 - 60%)</span>
+</div>
+<span class="font-semibold text-slate-800">78 (54.9%)</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-slate-600">Presque pleins (60 - 80%)</span>
+</div>
+<span class="font-semibold text-slate-800">38 (26.8%)</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-orange-500"></span>
+<span class="text-slate-600">Très pleins (80 - 100%)</span>
+</div>
+<span class="font-semibold text-slate-800">26 (18.3%)</span>
+</div>
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-slate-600">Pleins (100%)</span>
+</div>
+<span class="font-semibold text-slate-800">26 (18.3%)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: DonutChartSection -->
+<!-- BEGIN: LineChartSection -->
+<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200" data-purpose="evolution-chart">
+<h2 class="font-semibold text-slate-800 mb-2">Évolution des niveaux de remplissage</h2>
+<div class="h-44 w-full relative pt-4">
+<!-- Simple SVG line chart simulation -->
+<svg class="w-full h-full overflow-visible" viewBox="0 0 400 150">
+<!-- Grid Lines -->
+<line stroke="#f1f5f9" stroke-width="1" x1="0" x2="400" y1="0" y2="0"></line>
+<line stroke="#f1f5f9" stroke-width="1" x1="0" x2="400" y1="37.5" y2="37.5"></line>
+<line stroke="#f1f5f9" stroke-width="1" x1="0" x2="400" y1="75" y2="75"></line>
+<line stroke="#f1f5f9" stroke-width="1" x1="0" x2="400" y1="112.5" y2="112.5"></line>
+<line stroke="#f1f5f9" stroke-width="1" x1="0" x2="400" y1="150" y2="150"></line>
+<!-- Y Axis Labels -->
+<text fill="#94a3b8" font-size="10" x="-30" y="5">100%</text>
+<text fill="#94a3b8" font-size="10" x="-30" y="80">50%</text>
+<text fill="#94a3b8" font-size="10" x="-30" y="155">0%</text>
+<!-- Lines -->
+<path d="M0,45 L66,35 L133,40 L200,38 L266,33 L333,37 L400,36" fill="none" stroke="#ef4444" stroke-width="2"></path> <!-- Red Line -->
+<path d="M0,70 L66,65 L133,72 L200,68 L266,64 L333,66 L400,75" fill="none" stroke="#f97316" stroke-width="2"></path> <!-- Orange Line -->
+<path d="M0,100 L66,90 L133,95 L200,92 L266,88 L333,98 L400,94" fill="none" stroke="#eab308" stroke-width="2"></path> <!-- Yellow Line -->
+<path d="M0,135 L66,128 L133,132 L200,126 L266,134 L333,127 L400,131" fill="none" stroke="#22c55e" stroke-width="2"></path> <!-- Green Line -->
+<!-- Dots for Red Line -->
+<circle cx="0" cy="45" fill="#ef4444" r="3"></circle>
+<circle cx="66" cy="35" fill="#ef4444" r="3"></circle>
+<circle cx="133" cy="40" fill="#ef4444" r="3"></circle>
+<circle cx="200" cy="38" fill="#ef4444" r="3"></circle>
+<circle cx="266" cy="33" fill="#ef4444" r="3"></circle>
+<circle cx="333" cy="37" fill="#ef4444" r="3"></circle>
+<circle cx="400" cy="36" fill="#ef4444" r="3"></circle>
+</svg>
+<!-- X Axis Labels -->
+<div class="flex justify-between mt-2 px-1 text-[10px] text-slate-400 font-medium">
+<span class="">17 Mai</span>
+<span class="">18 Mai</span>
+<span class="">19 Mai</span>
+<span class="">20 Mai</span>
+<span class="">21 Mai</span>
+<span class="">22 Mai</span>
+<span class="">23 Mai</span>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex justify-center gap-4 mt-4 text-[10px] font-medium text-slate-500">
+<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Normaux</div>
+<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span> Presque pleins</div>
+<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Très pleins</div>
+<div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Pleins</div>
+</div>
+</section>
+<!-- END: LineChartSection -->
+</div>
+</div>
+<!-- END: MapSection -->
+<!-- BEGIN: RightSidebarPanels -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Recent Alerts -->
+<section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" data-purpose="recent-alerts">
+<div class="p-5 flex items-center justify-between border-b border-slate-100">
+<h2 class="font-semibold text-slate-800">Alertes récentes</h2>
+<a class="text-blue-600 text-xs font-semibold hover:underline" href="#">Voir toutes</a>
+</div>
+<div class="divide-y divide-slate-50">
+<!-- Alert Item 1 -->
+<div class="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+<div class="mt-1 flex-shrink-0 relative">
+<div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-red-500"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-red-600">Bac plein</h3>
+<span class="text-[10px] text-slate-400">Il y a 5 min</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Bac ID: B127 - Akpakpa Stade</p>
+</div>
+</div>
+<!-- Alert Item 2 -->
+<div class="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+<div class="mt-1 flex-shrink-0 relative">
+<div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-orange-500"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-orange-600">Bac presque plein</h3>
+<span class="text-[10px] text-slate-400">Il y a 18 min</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Bac ID: B089 - Zongo Cotonou</p>
+</div>
+</div>
+<!-- Alert Item 3 -->
+<div class="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+<div class="mt-1 flex-shrink-0 relative">
+<div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-red-500"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-red-600">Bac plein</h3>
+<span class="text-[10px] text-slate-400">Il y a 32 min</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Bac ID: B045 - Sainte Rita</p>
+</div>
+</div>
+<!-- Alert Item 4 -->
+<div class="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+<div class="mt-1 flex-shrink-0 relative">
+<div class="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-orange-500"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-orange-600">Bac presque plein</h3>
+<span class="text-[10px] text-slate-400">Il y a 45 min</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Bac ID: B073 - Houénoussou</p>
+</div>
+</div>
+<!-- Alert Item 5 -->
+<div class="p-4 flex items-start gap-4 hover:bg-slate-50 transition-colors">
+<div class="mt-1 flex-shrink-0 relative">
+<div class="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2 w-5 h-5 text-red-500"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+</div>
+<span class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="text-sm font-bold text-red-600">Bac plein</h3>
+<span class="text-[10px] text-slate-400">Il y a 1 h</span>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Bac ID: B132 - Gbedjromede</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming Collections -->
+<section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" data-purpose="upcoming-collections">
+<div class="p-5 flex items-center justify-between border-b border-slate-100">
+<h2 class="font-semibold text-slate-800">Prochaines collectes</h2>
+<a class="text-blue-600 text-xs font-semibold hover:underline" href="#">Voir toutes</a>
+</div>
+<div class="p-4 space-y-4">
+<!-- Collection Item 1 -->
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="truck" aria-hidden="true" class="lucide lucide-truck w-5 h-5 text-green-600"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+</div>
+<div class="flex-1">
+<h3 class="text-xs font-bold text-slate-800">Akpakpa - Sainte Rita</h3>
+<p class="text-[10px] text-slate-500">Aujourd'hui, 14:00</p>
+</div>
+<span class="px-2.5 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">En cours</span>
+</div>
+<!-- Collection Item 2 -->
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="truck" aria-hidden="true" class="lucide lucide-truck w-5 h-5 text-blue-600"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+</div>
+<div class="flex-1">
+<h3 class="text-xs font-bold text-slate-800">Zongo - Houénoussou</h3>
+<p class="text-[10px] text-slate-500">Aujourd'hui, 16:00</p>
+</div>
+<span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">Planifiée</span>
+</div>
+<!-- Collection Item 3 -->
+<div class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="truck" aria-hidden="true" class="lucide lucide-truck w-5 h-5 text-blue-600"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg>
+</div>
+<div class="flex-1">
+<h3 class="text-xs font-bold text-slate-800">Gbedjromede - Zoungon</h3>
+<p class="text-[10px] text-slate-500">Demain, 08:00</p>
+</div>
+<span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">Planifiée</span>
+</div>
+</div>
+</section>
+</div>
+<!-- END: RightSidebarPanels -->
+</div>
+</div>
+</main>
+<script data-purpose="icon-initialization">
+    // Initialize Lucide icons
+    lucide.createIcons();
+  </script>
+
+
+
+
+</body></html>
