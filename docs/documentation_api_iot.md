@@ -17,18 +17,26 @@ Cette documentation est destinée au développeur chargé de concevoir le systè
 
 ## 📦 Corps de la Requête (Payload JSON)
 
-Le corps de la requête doit être un objet JSON valide contenant exactement ces deux champs :
+Le corps de la requête doit être un objet JSON valide contenant les champs suivants :
 
 | Paramètre | Type | Rôle | Contraintes |
 | :--- | :--- | :--- | :--- |
-| `code` | `string` | Le code unique d'identification du bac | Obligatoire. Exemple : `"B141"`, `"B142"` |
-| `fill_level` | `integer` | Le pourcentage de remplissage mesuré | Entier obligatoire entre `0` (vide) et `100` (plein). |
+| `code` | `string` | Le code unique d'identification du bac | **Obligatoire**. Format libre (ex: `"B141"`, `"B142"`) |
+| `fill_level` | `integer` | Le pourcentage de remplissage mesuré | **Obligatoire**. Entier entre `0` (vide) et `100` (plein). |
+| `temperature` | `float` | La température ambiante mesurée en °C | *Optionnel / Nullable*. Décimal (ex: `29.8`) |
+| `air_quality` | `integer` | La concentration en CO2 / gaz (ppm) | *Optionnel / Nullable*. Entier (ex: `400`) |
+| `latitude` | `float` | La coordonnée de latitude GPS du bac | *Optionnel / Nullable*. Décimal (ex: `6.365214`) |
+| `longitude` | `float` | La coordonnée de longitude GPS du bac | *Optionnel / Nullable*. Décimal (ex: `2.418632`) |
 
-### Exemple de JSON :
+### Exemple de JSON Complet :
 ```json
 {
     "code": "B141",
-    "fill_level": 75
+    "fill_level": 75,
+    "temperature": 29.8,
+    "air_quality": 400,
+    "latitude": 6.365214,
+    "longitude": 2.418632
 }
 ```
 
