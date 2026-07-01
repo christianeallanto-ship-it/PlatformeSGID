@@ -198,4 +198,36 @@ class BinController extends Controller
 
         return redirect()->route('bins.index')->with('success', "Le bac {$validated['code']} a été ajouté avec succès. Il commencera à se mettre à jour dès la réception des données.");
     }
+
+    /**
+     * Activer ou désactiver un bac (Admin uniquement).
+     */
+    public function toggleActive(Bin $bin)
+    {
+        if (auth()->user()->role !== 'Administrateur') {
+            abort(403, 'Seuls les administrateurs peuvent activer ou désactiver les bacs.');
+        }
+
+        $bin->is_active = !$bin->is_active;
+        $bin->save();
+
+        $status = $bin->is_active ? 'activé' : 'désactivé';
+        return redirect()->route('bins.index')->with('success', "Le bac {$bin->code} a été {$status} avec succès.");
+    }
+
+    /**
+     * Supprimer un bac (Admin uniquement).
+     */
+    public function destroy(Bin $bin)
+    {
+        if (auth()->user()->role !== 'Administrateur') {
+            abort(403, 'Seuls les administrateurs peuvent supprimer les bacs.');
+        }
+
+        // Supprimer d'abord les alertes liées
+        $bin->alerts()->delete();
+        $bin->delete();
+
+        return redirect()->route('bins.index')->with('success', "Le bac {$bin->code} a été supprimé avec succès.");
+    }
 }

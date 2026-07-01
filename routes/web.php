@@ -109,6 +109,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Bacs
     Route::get('/bins', [BinController::class, 'index'])->name('bins.index');
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
+    Route::post('/bins/{bin}/toggle-active', [BinController::class, 'toggleActive'])->name('bins.toggle-active');
+    Route::delete('/bins/{bin}', [BinController::class, 'destroy'])->name('bins.destroy');
     Route::post('/api/bins/telemetry', [BinController::class, 'updateTelemetry'])->name('bins.telemetry');
 
     // Alertes

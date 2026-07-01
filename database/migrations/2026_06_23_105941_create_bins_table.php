@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('air_quality')->nullable(); // Qualité de l'air
             $table->string('type')->default('Général'); // Type de déchet (Plastique, Organique, etc.)
             $table->string('status')->default('Normal'); // Statut du bac (Normal, Presque plein, Plein)
+            $table->boolean('is_active')->default(true); // État d'activation du bac (Actif / Inactif)
             $table->timestamps();
         });
     }

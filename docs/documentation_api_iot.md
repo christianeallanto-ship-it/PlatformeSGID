@@ -21,13 +21,13 @@ Le corps de la requête doit être un objet JSON valide contenant exactement ces
 
 | Paramètre | Type | Rôle | Contraintes |
 | :--- | :--- | :--- | :--- |
-| `code` | `string` | Le code unique d'identification du bac | Obligatoire. Exemple : `"BAC001"`, `"BAC_IOT_01"` |
+| `code` | `string` | Le code unique d'identification du bac | Obligatoire. Exemple : `"B141"`, `"B142"` |
 | `fill_level` | `integer` | Le pourcentage de remplissage mesuré | Entier obligatoire entre `0` (vide) et `100` (plein). |
 
 ### Exemple de JSON :
 ```json
 {
-    "code": "BAC_IOT_01",
+    "code": "B141",
     "fill_level": 75
 }
 ```
@@ -49,7 +49,7 @@ Pour faciliter le déploiement sur le terrain et suite à un nettoyage de la bas
 curl -X POST https://christianeapps.alwaysdata.net/api/bins/telemetry \
      -H "Content-Type: application/json" \
      -H "Accept: application/json" \
-     -d '{"code":"BAC_IOT_01", "fill_level":75}'
+     -d '{"code":"B141", "fill_level":75}'
 ```
 
 ### 2. Exemple de Code C++ (Arduino / ESP32)
@@ -108,10 +108,10 @@ void sendTelemetry(String binCode, int fillLevel) {
 
 void loop() {
   // Remplacer 75 par la valeur mesurée par votre capteur ultrasonique
-  //sendTelemetry("BAC_IOT_01", 75);
+  //sendTelemetry("B141", 75);
   
 {
-  "code": "BAC_IOT_01",
+  "code": "B141",
   "fill_level": 35,
   "temperature": 29.81,
   "air_quality": 400,

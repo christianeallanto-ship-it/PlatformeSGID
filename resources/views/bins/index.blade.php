@@ -74,7 +74,7 @@
                     </a>
                 @endif
                 @if(auth()->user()->role === 'Administrateur')
-                    <button type="button" onclick="document.getElementById('modalAddBin').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all h-[38px] ml-auto">
+                    <button type="button" onclick="document.getElementById('modalAddBin').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all h-[38px] ml-auto">
                         <i data-lucide="plus-circle" class="w-4 h-4"></i>
                         Ajouter un bac
                     </button>
@@ -96,6 +96,9 @@
                         <th class="px-6 py-4">Niveau de remplissage</th>
                         <th class="px-6 py-4">Statut</th>
                         <th class="px-6 py-4">Dernière mise à jour</th>
+                        @if(auth()->user()->role === 'Administrateur')
+                            <th class="px-6 py-4">Actions</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
@@ -110,22 +113,14 @@
                             </td>
                             <td class="px-6 py-4">
                                 @if($bin->temperature !== null)
-                                    <span class="font-semibold text-slate-700">{{ number_format($bin->temperature, 1) }} °C</span>
+                                    <span class="font-semibold text-slate-700 whitespace-nowrap">{{ number_format($bin->temperature, 1) }} °C</span>
                                 @else
                                     <span class="text-slate-400">--</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4">
                                 @if($bin->air_quality !== null)
-                                    @php
-                                        $airStyle = 'text-green-600 bg-green-50';
-                                        if ($bin->air_quality > 1000) {
-                                            $airStyle = 'text-red-600 bg-red-50';
-                                        } elseif ($bin->air_quality > 600) {
-                                            $airStyle = 'text-yellow-600 bg-yellow-50';
-                                        }
-                                    @endphp
-                                    <span class="px-2 py-0.5 rounded text-xs font-bold {{ $airStyle }}">{{ $bin->air_quality }} ppm</span>
+                                    <span class="font-semibold text-slate-700 whitespace-nowrap">{{ $bin->air_quality }} ppm</span>
                                 @else
                                     <span class="text-slate-400">--</span>
                                 @endif
@@ -149,23 +144,55 @@
                             <td class="px-6 py-4">
                                 @php
                                     $badgeStyle = 'bg-green-50 text-green-700 border-green-200';
-                                    if ($bin->fill_level >= $thresholdFull) {
+                                    $statusLabel = $bin->status;
+                                    if (!$bin->is_active) {
+                                        $badgeStyle = 'bg-slate-100 text-slate-600 border-slate-300';
+                                        $statusLabel = 'Inactif';
+                                    } elseif ($bin->fill_level >= $thresholdFull) {
                                         $badgeStyle = 'bg-red-50 text-red-700 border-red-200';
                                     } elseif ($bin->fill_level >= $thresholdAlmostFull) {
                                         $badgeStyle = 'bg-yellow-50 text-yellow-700 border-yellow-200';
                                     }
                                 @endphp
-                                <span class="px-2.5 py-0.5 border text-xs font-semibold rounded-full {{ $badgeStyle }}">
-                                    {{ $bin->status }}
+                                <span class="px-2.5 py-0.5 border text-xs font-semibold rounded-full whitespace-nowrap {{ $badgeStyle }}">
+                                    {{ $statusLabel }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-xs text-slate-400">
+                            <td class="px-6 py-4 text-xs text-slate-400 whitespace-nowrap">
                                 {{ $bin->updated_at->format('d/m/Y H:i') }}
                             </td>
+                            @if(auth()->user()->role === 'Administrateur')
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <!-- Activer / Désactiver -->
+                                        <form action="{{ route('bins.toggle-active', $bin) }}" method="POST" class="inline">
+                                            @csrf
+                                            @if($bin->is_active)
+                                                <button type="submit" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 px-2.5 rounded-lg border border-slate-200 font-semibold shadow-sm transition-colors" title="Désactiver le bac">
+                                                    Désactiver
+                                                </button>
+                                            @else
+                                                <button type="submit" class="text-xs bg-green-50 hover:bg-green-100 text-green-700 py-1.5 px-2.5 rounded-lg border border-green-200 font-semibold shadow-sm transition-colors" title="Activer le bac">
+                                                    Activer
+                                                </button>
+                                            @endif
+                                        </form>
+
+                                        <!-- Supprimer -->
+                                        <form action="{{ route('bins.destroy', $bin) }}" method="POST" class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement le bac {{ $bin->code }} ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs bg-red-50 hover:bg-red-100 text-red-700 p-1.5 rounded-lg border border-red-200 font-semibold transition-colors" title="Supprimer le bac">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5 inline"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center text-slate-400">
+                            <td colspan="{{ auth()->user()->role === 'Administrateur' ? 8 : 7 }}" class="px-6 py-12 text-center text-slate-400">
                                 <div class="flex flex-col items-center justify-center gap-2">
                                     <i data-lucide="trash-2" class="w-8 h-8 text-slate-300"></i>
                                     <span>Aucun bac ne correspond aux filtres de recherche.</span>
@@ -212,14 +239,7 @@
                 @csrf
                 <div>
                     <label for="code" class="block text-xs font-bold text-slate-500 uppercase mb-1">Code d'identification du bac</label>
-                    <input type="text" name="code" id="code" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500 font-semibold" placeholder="ex: BAC_IOT_01">
-                </div>
-
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed flex gap-2">
-                    <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5"></i>
-                    <span>
-                        <strong>Note :</strong> Seul le code est nécessaire. Les autres informations (géolocalisation GPS, niveau de remplissage, température et qualité de l'air) seront envoyées et mises à jour automatiquement par le boîtier électronique connecté.
-                    </span>
+                    <input type="text" name="code" id="code" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500 font-semibold" placeholder="ex: B141">
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-2 border-t border-slate-100">

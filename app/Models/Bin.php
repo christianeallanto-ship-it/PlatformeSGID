@@ -17,7 +17,8 @@ class Bin extends Model
         'temperature',
         'air_quality',
         'type',
-        'status'
+        'status',
+        'is_active'
     ];
 
     /**
