@@ -44,11 +44,36 @@ class BinController extends Controller
     public function updateTelemetry(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|exists:bins,code',
+            'code' => 'required|string',
             'fill_level' => 'required|integer|min:0|max:100',
         ]);
 
-        $bin = Bin::where('code', $validated['code'])->firstOrFail();
+        // Si le bac n'existe pas, on le crée dynamiquement dans la ville active
+        $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
+        $villes = [
+            'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
+            'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
+            'Parakou'       => ['lat' => 9.3370,  'lng' => 2.6277],
+            'Abomey-Calavi' => ['lat' => 6.4490,  'lng' => 2.3554],
+            'Bohicon'       => ['lat' => 7.1781,  'lng' => 2.0717],
+            'Natitingou'    => ['lat' => 10.3103, 'lng' => 1.3786],
+            'Ouidah'        => ['lat' => 6.3612,  'lng' => 2.0854],
+            'Lokossa'       => ['lat' => 6.6384,  'lng' => 1.7173],
+            'Djougou'       => ['lat' => 9.7097,  'lng' => 1.6660],
+            'Kandi'         => ['lat' => 11.1344, 'lng' => 2.9389],
+        ];
+        $center = $villes[$mapCity] ?? $villes['Cotonou'];
+
+        $bin = Bin::firstOrNew(
+            ['code' => $validated['code']],
+            [
+                'location' => 'Bac connecté IOT (' . $mapCity . ')',
+                'latitude' => $center['lat'] + (mt_rand(-20000, 20000) / 1000000),
+                'longitude' => $center['lng'] + (mt_rand(-35000, 35000) / 1000000),
+                'type' => 'Tout-venant',
+            ]
+        );
+
         $bin->fill_level = $validated['fill_level'];
 
         // Recalculer le statut en fonction des seuils de configuration
