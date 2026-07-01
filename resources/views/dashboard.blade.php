@@ -228,12 +228,12 @@
             </section>
 
             <!-- Line Chart (Chart.js) -->
-            <section class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+            <section class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col">
                 <div>
                     <h2 class="font-bold text-slate-800 mb-1 text-sm uppercase tracking-wider">Niveaux de remplissage</h2>
                     <p class="text-xs text-slate-400 mt-1">Suivi de la moyenne quotidienne globale du taux de remplissage</p>
                 </div>
-                <div class="relative mt-4" style="height: 180px; width: 100%;">
+                <div class="relative flex-grow min-h-[245px] mt-3 w-full">
                     <canvas id="chartFillEvolution"></canvas>
                 </div>
             </section>
@@ -405,6 +405,11 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        bottom: 12
+                    }
+                },
                 plugins: {
                     legend: { 
                         display: true,
@@ -413,7 +418,7 @@
                             usePointStyle: true,
                             pointStyle: 'circle',
                             boxWidth: 6,
-                            padding: 10,
+                            padding: 16,
                             font: { size: 9 }
                         }
                     }
@@ -425,7 +430,7 @@
                     y: {
                         beginAtZero: true,
                         grid: { color: 'rgba(148,163,184,0.15)' },
-                        ticks: { stepSize: 5 }
+                        ticks: { stepSize: 5, autoSkip: false }
                     }
                 }
             }

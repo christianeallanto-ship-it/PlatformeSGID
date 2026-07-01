@@ -1,11 +1,14 @@
-{{-- Auto-detect background image: supports PNG and JPG --}}
+{{-- Auto-detect background images for the slideshow --}}
 @php
-    $bgImage = null;
-    foreach (['login_dg.png', 'login_bg.png', 'login_bg.jpg', 'login_dg.jpg'] as $file) {
+    $bgImages = [];
+    foreach (['login_bg.png', 'login_bg1.jpg', 'login_bg2.jpg', 'login_bg3.jpg', 'login_bg4.jpg'] as $file) {
         if (file_exists(public_path('images/' . $file))) {
-            $bgImage = asset('images/' . $file);
-            break;
+            $bgImages[] = asset('images/' . $file);
         }
+    }
+    // Fallback if none exist
+    if (empty($bgImages)) {
+        $bgImages[] = 'linear-gradient(135deg, #0a1128 0%, #064e3b 100%)';
     }
 @endphp
 <!DOCTYPE html>
@@ -66,7 +69,7 @@
             }
 
             .card-animate {
-                animation: slideUpCard 1.2s cubic-bezier(0.25, 1, 0.5, 1) 2.2s forwards;
+                animation: slideUpCard 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.2s forwards;
                 opacity: 0;
             }
 
@@ -108,13 +111,28 @@
                 transform: translateY(-1px) !important;
                 box-shadow: 0 6px 14px rgba(0, 186, 198, 0.3) !important;
             }
+
+            /* Ken Burns Effect for background slideshow */
+            @keyframes kenBurns {
+                0% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+            .bg-slide-active {
+                animation: kenBurns 8s ease-out forwards;
+            }
         </style>
     </head>
     <body class="font-sans text-gray-900 antialiased min-h-screen relative flex items-center justify-center p-4 bg-slate-900">
         
-        <!-- Animated clear background image with no dark/white overlay -->
-        <div class="absolute inset-0 bg-cover bg-center bg-no-repeat bg-animate z-0" 
-             style="@if($bgImage) background-image: url('{{ $bgImage }}'); @else background: linear-gradient(135deg, #0a1128 0%, #064e3b 100%); @endif">
+        <!-- Slideshow Background Container -->
+        <div class="absolute inset-0 overflow-hidden z-0 bg-slate-950">
+            @foreach($bgImages as $index => $img)
+                <div class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[1500ms] ease-in-out bg-slide {{ $index === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105' }}" 
+                     style="background-image: {{ str_contains($img, 'gradient') ? $img : "url('$img')" }}; z-index: 0; transform-origin: center;">
+                </div>
+            @endforeach
+            <!-- Professional dark gradient overlay to ensure card readability -->
+            <div class="absolute inset-0 bg-gradient-to-tr from-slate-950/70 via-transparent to-slate-950/70 z-0"></div>
         </div>
 
         @php
@@ -233,6 +251,27 @@
                         }
                     });
                 });
+
+                // Background slideshow logic with Ken Burns effect
+                const slides = document.querySelectorAll('.bg-slide');
+                if (slides.length > 1) {
+                    let currentSlide = 0;
+                    
+                    // Activate Ken Burns on first slide
+                    slides[0].classList.add('bg-slide-active');
+
+                    setInterval(() => {
+                        const prev = slides[currentSlide];
+                        prev.classList.remove('opacity-100', 'scale-100', 'bg-slide-active');
+                        prev.classList.add('opacity-0', 'scale-105');
+                        
+                        currentSlide = (currentSlide + 1) % slides.length;
+                        
+                        const next = slides[currentSlide];
+                        next.classList.remove('opacity-0', 'scale-105');
+                        next.classList.add('opacity-100', 'scale-100', 'bg-slide-active');
+                    }, 6000); // changes every 6 seconds
+                }
             });
         </script>
     </body>

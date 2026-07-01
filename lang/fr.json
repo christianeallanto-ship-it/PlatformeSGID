@@ -1,6 +1,7 @@
 {
     "Email": "Adresse e-mail",
     "Password": "Mot de passe",
+    "New Password": "Nouveau mot de passe",
     "Remember me": "Se souvenir de moi",
     "Forgot your password?": "Mot de passe oublié ?",
     "Log in": "Se connecter",
@@ -8,5 +9,21 @@
     "Name": "Nom",
     "Already registered?": "Déjà inscrit ?",
     "Register": "S'inscrire",
-    "Confirm Password": "Confirmer le mot de passe"
+    "Confirm Password": "Confirmer le mot de passe",
+    "Reset Password": "Réinitialiser le mot de passe",
+    "Send Reset Link": "Envoyer le lien de réinitialisation",
+    "Email Password Reset Link": "Envoyer le lien de réinitialisation",
+    "Forgot password instruction": "Mot de passe oublié ? Aucun problème. Entrez votre adresse e-mail ci-dessous et nous vous enverrons un lien pour créer un nouveau mot de passe.",
+    "Not registered?": "Pas encore inscrit ?",
+    "Create an account": "Créer un compte",
+    "Back to login": "Retour à la connexion",
+    "These credentials do not match our records.": "Ces identifiants ne correspondent à aucun compte.",
+    "The provided password is incorrect.": "Le mot de passe est incorrect.",
+    "Too many login attempts. Please try again in :seconds seconds.": "Trop de tentatives de connexion. Veuillez réessayer dans :seconds secondes.",
+    "We have emailed your password reset link.": "Nous vous avons envoyé un lien de réinitialisation par e-mail.",
+    "This password reset token is invalid.": "Ce lien de réinitialisation est invalide ou a expiré.",
+    "The :attribute field is required.": "Le champ :attribute est obligatoire.",
+    "The :attribute must be at least :min characters.": "Le champ :attribute doit comporter au moins :min caractères.",
+    "The :attribute field must be a valid email address.": "Le champ :attribute doit être une adresse e-mail valide.",
+    "The :attribute field confirmation does not match.": "La confirmation du champ :attribute ne correspond pas."
 }

@@ -249,7 +249,7 @@
         <section class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <h2 class="font-bold text-slate-800 text-lg mb-1">Niveaux de remplissage</h2>
             <p class="text-xs text-slate-400 mb-5">Suivi de la moyenne quotidienne globale du taux de remplissage</p>
-            <div class="relative" style="height: 200px;">
+            <div class="relative" style="height: 245px;">
                 <canvas id="chartFillEvolution"></canvas>
             </div>
         </section>
@@ -417,6 +417,11 @@ document.addEventListener('DOMContentLoaded', function () {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    bottom: 12
+                }
+            },
             plugins: {
                 legend: { 
                     display: true,
@@ -425,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         usePointStyle: true,
                         pointStyle: 'circle',
                         boxWidth: 6,
-                        padding: 10,
+                        padding: 16,
                         font: { size: 9 }
                     }
                 }
@@ -440,7 +445,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     grid: { color: gridColor },
                     ticks: {
                         color: tickColor,
-                        stepSize: 5
+                        stepSize: 5,
+                        autoSkip: false
                     },
                     border: { dash: [4, 4] }
                 }
