@@ -108,8 +108,17 @@ void sendTelemetry(String binCode, int fillLevel) {
 
 void loop() {
   // Remplacer 75 par la valeur mesurée par votre capteur ultrasonique
-  sendTelemetry("BAC_IOT_01", 75);
+  //sendTelemetry("BAC_IOT_01", 75);
   
+{
+  "code": "BAC_IOT_01",
+  "fill_level": 35,
+  "temperature": 29.81,
+  "air_quality": 400,
+  "latitude": 6.365214,
+  "longitude": 2.418632
+}
+
   // Attendre 5 minutes avant la prochaine mesure (300 000 ms)
   delay(300000);
 }

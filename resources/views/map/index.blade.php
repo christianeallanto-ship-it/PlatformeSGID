@@ -96,6 +96,9 @@
                     radius: 100 // Radius in meters
                 }).addTo(map);
 
+                let tempText = bin.temperature !== null ? `${parseFloat(bin.temperature).toFixed(1)} °C` : '--';
+                let airText = bin.air_quality !== null ? `${bin.air_quality} ppm` : '--';
+
                 const popupContent = `
                     <div class="p-2 font-sans w-52">
                         <div class="flex justify-between items-center border-b pb-1 mb-2">
@@ -103,7 +106,9 @@
                             <span class="text-[10px] font-bold text-white px-2 py-0.5 rounded" style="background-color: ${color};">${bin.status}</span>
                         </div>
                         <p class="text-xs text-slate-600 mb-1"><strong>Lieu :</strong> ${bin.location}</p>
-                        <p class="text-xs text-slate-600 mb-2"><strong>Remplissage :</strong> ${bin.fill_level}%</p>
+                        <p class="text-xs text-slate-600 mb-1"><strong>Remplissage :</strong> ${bin.fill_level}%</p>
+                        <p class="text-xs text-slate-600 mb-1"><strong>Température :</strong> ${tempText}</p>
+                        <p class="text-xs text-slate-600 mb-2"><strong>Qualité de l'air :</strong> ${airText}</p>
                         
                         <div class="pt-2 border-t flex justify-between items-center">
                             <a href="{{ route('bins.index') }}?search=${bin.code}" class="text-[10px] text-blue-600 font-bold hover:underline flex items-center gap-0.5">

@@ -347,11 +347,16 @@
                     radius: 90
                 }).addTo(map);
 
+                let tempText = bin.temperature !== null ? `${parseFloat(bin.temperature).toFixed(1)} °C` : '--';
+                let airText = bin.air_quality !== null ? `${bin.air_quality} ppm` : '--';
+
                 const popupContent = `
                     <div class="p-1 font-sans">
                         <p class="font-bold text-slate-800 border-b pb-1 mb-1 text-sm">Bac ${bin.code}</p>
                         <p class="text-xs"><strong>Adresse :</strong> ${bin.location}</p>
                         <p class="text-xs"><strong>Remplissage :</strong> ${bin.fill_level}%</p>
+                        <p class="text-xs"><strong>Température :</strong> ${tempText}</p>
+                        <p class="text-xs"><strong>Qualité de l'air :</strong> ${airText}</p>
                         <span class="inline-block mt-1.5 px-2 py-0.5 text-[9px] font-bold text-white rounded uppercase tracking-wide" style="background-color: ${color};">${bin.status}</span>
                     </div>
                 `;

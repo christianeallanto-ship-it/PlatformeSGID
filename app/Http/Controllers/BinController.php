@@ -35,21 +35,7 @@ class BinController extends Controller
         $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
         $thresholdFull = \App\Helpers\SettingsHelper::get('threshold_full', 80);
         $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
-        return view('bins.index', compact('bins', 'mapCity', 'thresholdAlmostFull', 'thresholdFull'));
-    }
 
-    /**
-     * Recevoir les données télémétriques d'un bac (IoT PlatformIO / ESP32).
-     */
-    public function updateTelemetry(Request $request)
-    {
-        $validated = $request->validate([
-            'code' => 'required|string',
-            'fill_level' => 'required|integer|min:0|max:100',
-        ]);
-
-        // Si le bac n'existe pas, on le crée dynamiquement dans la ville active
-        $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
         $villes = [
             'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
             'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
@@ -64,17 +50,67 @@ class BinController extends Controller
         ];
         $center = $villes[$mapCity] ?? $villes['Cotonou'];
 
+        return view('bins.index', compact('bins', 'mapCity', 'thresholdAlmostFull', 'thresholdFull', 'center'));
+    }
+
+    /**
+     * Recevoir les données télémétriques d'un bac (IoT PlatformIO / ESP32).
+     */
+    public function updateTelemetry(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string',
+            'fill_level' => 'required|integer|min:0|max:100',
+            'temperature' => 'nullable|numeric',
+            'air_quality' => 'nullable|integer',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
+
+        $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
+
+        // Déterminer la latitude et la longitude à utiliser
+        if ($request->filled('latitude') && $request->filled('longitude')) {
+            $lat = (float) $validated['latitude'];
+            $lng = (float) $validated['longitude'];
+        } else {
+            // Fallback sur le centre de la ville active + offset aléatoire
+            $villes = [
+                'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
+                'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
+                'Parakou'       => ['lat' => 9.3370,  'lng' => 2.6277],
+                'Abomey-Calavi' => ['lat' => 6.4490,  'lng' => 2.3554],
+                'Bohicon'       => ['lat' => 7.1781,  'lng' => 2.0717],
+                'Natitingou'    => ['lat' => 10.3103, 'lng' => 1.3786],
+                'Ouidah'        => ['lat' => 6.3612,  'lng' => 2.0854],
+                'Lokossa'       => ['lat' => 6.6384,  'lng' => 1.7173],
+                'Djougou'       => ['lat' => 9.7097,  'lng' => 1.6660],
+                'Kandi'         => ['lat' => 11.1344, 'lng' => 2.9389],
+            ];
+            $center = $villes[$mapCity] ?? $villes['Cotonou'];
+            $lat = $center['lat'] + (mt_rand(-20000, 20000) / 1000000);
+            $lng = $center['lng'] + (mt_rand(-35000, 35000) / 1000000);
+        }
+
         $bin = Bin::firstOrNew(
             ['code' => $validated['code']],
             [
                 'location' => 'Bac connecté IOT (' . $mapCity . ')',
-                'latitude' => $center['lat'] + (mt_rand(-20000, 20000) / 1000000),
-                'longitude' => $center['lng'] + (mt_rand(-35000, 35000) / 1000000),
+                'latitude' => $lat,
+                'longitude' => $lng,
                 'type' => 'Tout-venant',
             ]
         );
 
+        // Si le bac existait déjà et que de nouvelles coordonnées GPS sont envoyées, on les met à jour
+        if ($bin->exists && $request->filled('latitude') && $request->filled('longitude')) {
+            $bin->latitude = $lat;
+            $bin->longitude = $lng;
+        }
+
         $bin->fill_level = $validated['fill_level'];
+        $bin->temperature = $validated['temperature'] ?? $bin->temperature;
+        $bin->air_quality = $validated['air_quality'] ?? $bin->air_quality;
 
         // Recalculer le statut en fonction des seuils de configuration
         $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
@@ -114,8 +150,63 @@ class BinController extends Controller
             'bin' => [
                 'code' => $bin->code,
                 'fill_level' => $bin->fill_level,
+                'temperature' => $bin->temperature,
+                'air_quality' => $bin->air_quality,
+                'latitude' => $bin->latitude,
+                'longitude' => $bin->longitude,
                 'status' => $bin->status,
             ]
         ]);
+    }
+
+    /**
+     * Enregistrer manuellement un nouveau bac.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'required|string|unique:bins,code',
+            'location' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'type' => 'required|string|max:255',
+            'fill_level' => 'nullable|integer|min:0|max:100',
+            'temperature' => 'nullable|numeric',
+            'air_quality' => 'nullable|integer',
+        ], [
+            'code.required' => 'Le code du bac est obligatoire.',
+            'code.unique' => 'Ce code de bac est déjà utilisé.',
+            'location.required' => 'La localisation est obligatoire.',
+            'latitude.required' => 'La latitude est obligatoire.',
+            'longitude.required' => 'La longitude est obligatoire.',
+            'type.required' => 'Le type de déchet est obligatoire.',
+        ]);
+
+        $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
+        $thresholdFull = \App\Helpers\SettingsHelper::get('threshold_full', 80);
+
+        $fillLevel = $validated['fill_level'] ?? 0;
+        
+        if ($fillLevel >= $thresholdFull) {
+            $status = 'Plein';
+        } elseif ($fillLevel >= $thresholdAlmostFull) {
+            $status = 'Presque plein';
+        } else {
+            $status = 'Normal';
+        }
+
+        Bin::create([
+            'code' => $validated['code'],
+            'location' => $validated['location'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
+            'type' => $validated['type'],
+            'fill_level' => $fillLevel,
+            'temperature' => $validated['temperature'] ?? null,
+            'air_quality' => $validated['air_quality'] ?? null,
+            'status' => $status,
+        ]);
+
+        return redirect()->route('bins.index')->with('success', "Le bac {$validated['code']} a été ajouté avec succès.");
     }
 }

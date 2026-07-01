@@ -14,6 +14,8 @@ class Bin extends Model
         'latitude',
         'longitude',
         'fill_level',
+        'temperature',
+        'air_quality',
         'type',
         'status'
     ];

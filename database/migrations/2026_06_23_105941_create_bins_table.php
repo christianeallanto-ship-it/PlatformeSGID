@@ -18,6 +18,8 @@ return new class extends Migration
             $table->decimal('latitude', 10, 8)->nullable(); // Latitude pour la géolocalisation
             $table->decimal('longitude', 11, 8)->nullable(); // Longitude pour la géolocalisation
             $table->integer('fill_level')->default(0); // Niveau de remplissage en pourcentage (0-100)
+            $table->decimal('temperature', 5, 2)->nullable(); // Température en °C
+            $table->integer('air_quality')->nullable(); // Qualité de l'air
             $table->string('type')->default('Général'); // Type de déchet (Plastique, Organique, etc.)
             $table->string('status')->default('Normal'); // Statut du bac (Normal, Presque plein, Plein)
             $table->timestamps();
