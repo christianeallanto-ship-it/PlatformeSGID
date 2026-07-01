@@ -111,7 +111,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/bins', [BinController::class, 'store'])->name('bins.store');
     Route::post('/bins/{bin}/toggle-active', [BinController::class, 'toggleActive'])->name('bins.toggle-active');
     Route::delete('/bins/{bin}', [BinController::class, 'destroy'])->name('bins.destroy');
-    Route::post('/api/bins/telemetry', [BinController::class, 'updateTelemetry'])->name('bins.telemetry');
 
     // Alertes
     Route::get('/alerts', [AlertController::class, 'index'])->name('alerts.index');
@@ -139,6 +138,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'save'])->name('settings.save');
 });
+
+Route::post('/api/bins/telemetry', [BinController::class, 'updateTelemetry'])->name('bins.telemetry');
 
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
