@@ -13,14 +13,6 @@
             </h1>
             <p class="text-sm text-slate-500">Visualisez, filtrez et gérez l'état de tous les bacs déployés à {{ $mapCity }}.</p>
         </div>
-        @if(auth()->user()->role === 'Administrateur')
-            <div class="shrink-0">
-                <button onclick="document.getElementById('modalAddBin').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl flex items-center gap-2 shadow-md transition-all">
-                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                    Ajouter un bac
-                </button>
-            </div>
-        @endif
     </div>
 
     <!-- Alerts -->
@@ -71,15 +63,21 @@
 
 
             <!-- Action buttons -->
-            <div class="flex items-end gap-2">
-                <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors">
+            <div class="flex items-end gap-2 md:col-span-2">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-6 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors h-[38px]">
                     <i data-lucide="filter" class="w-4 h-4"></i>
                     Filtrer
                 </button>
                 @if(request()->filled('search') || request()->filled('status'))
-                    <a href="{{ route('bins.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold py-2 px-3 rounded-lg flex items-center justify-center transition-colors">
+                    <a href="{{ route('bins.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold py-2 px-3 rounded-lg flex items-center justify-center transition-colors h-[38px]">
                         <i data-lucide="x" class="w-4 h-4"></i>
                     </a>
+                @endif
+                @if(auth()->user()->role === 'Administrateur')
+                    <button type="button" onclick="document.getElementById('modalAddBin').classList.remove('hidden')" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all h-[38px] ml-auto">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        Ajouter un bac
+                    </button>
                 @endif
             </div>
         </form>
@@ -199,66 +197,29 @@
     <!-- Modal Ajouter un Bac -->
     @if(auth()->user()->role === 'Administrateur')
     <div id="modalAddBin" class="fixed inset-0 z-50 overflow-y-auto hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-100 transform transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden border border-slate-100 transform transition-all duration-300">
             <div class="bg-green-600 px-6 py-4 flex items-center justify-between text-white">
                 <h3 class="font-bold text-base flex items-center gap-2">
                     <i data-lucide="plus-circle" class="w-5 h-5"></i>
                     Ajouter un nouveau bac
                 </h3>
-                <button onclick="document.getElementById('modalAddBin').classList.add('hidden')" class="text-white/80 hover:text-white">
+                <button type="button" onclick="document.getElementById('modalAddBin').classList.add('hidden')" class="text-white/80 hover:text-white">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             
             <form action="{{ route('bins.store') }}" method="POST" class="p-6 space-y-4">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="code" class="block text-xs font-bold text-slate-500 uppercase mb-1">Code du bac</label>
-                        <input type="text" name="code" id="code" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500" placeholder="ex: B101">
-                    </div>
-                    <div>
-                        <label for="type" class="block text-xs font-bold text-slate-500 uppercase mb-1">Type de déchet</label>
-                        <select name="type" id="type" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500">
-                            <option value="Tout-venant">Tout-venant</option>
-                            <option value="Organique">Organique</option>
-                            <option value="Plastique">Plastique</option>
-                            <option value="Verre">Verre</option>
-                            <option value="Papier">Papier</option>
-                            <option value="Métal">Métal</option>
-                        </select>
-                    </div>
-                </div>
-
                 <div>
-                    <label for="location" class="block text-xs font-bold text-slate-500 uppercase mb-1">Localisation / Adresse</label>
-                    <input type="text" name="location" id="location" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500" placeholder="ex: Akpakpa Stade, face pharmacie">
+                    <label for="code" class="block text-xs font-bold text-slate-500 uppercase mb-1">Code d'identification du bac</label>
+                    <input type="text" name="code" id="code" required class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500 font-semibold" placeholder="ex: BAC_IOT_01">
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="latitude" class="block text-xs font-bold text-slate-500 uppercase mb-1">Latitude</label>
-                        <input type="number" step="any" name="latitude" id="latitude" required value="{{ $center['lat'] }}" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500">
-                    </div>
-                    <div>
-                        <label for="longitude" class="block text-xs font-bold text-slate-500 uppercase mb-1">Longitude</label>
-                        <input type="number" step="any" name="longitude" id="longitude" required value="{{ $center['lng'] }}" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="fill_level" class="block text-xs font-bold text-slate-500 uppercase mb-1">Remplissage (%)</label>
-                        <input type="number" name="fill_level" id="fill_level" min="0" max="100" value="0" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500">
-                    </div>
-                    <div>
-                        <label for="temperature" class="block text-xs font-bold text-slate-500 uppercase mb-1">Température (°C)</label>
-                        <input type="number" step="0.1" name="temperature" id="temperature" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500" placeholder="ex: 28.5">
-                    </div>
-                    <div>
-                        <label for="air_quality" class="block text-xs font-bold text-slate-500 uppercase mb-1">Qualité air (ppm)</label>
-                        <input type="number" name="air_quality" id="air_quality" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-green-500" placeholder="ex: 400">
-                    </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs text-slate-500 leading-relaxed flex gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5"></i>
+                    <span>
+                        <strong>Note :</strong> Seul le code est nécessaire. Les autres informations (géolocalisation GPS, niveau de remplissage, température et qualité de l'air) seront envoyées et mises à jour automatiquement par le boîtier électronique connecté.
+                    </span>
                 </div>
 
                 <div class="pt-4 flex items-center justify-end gap-2 border-t border-slate-100">
@@ -266,7 +227,7 @@
                         Annuler
                     </button>
                     <button type="submit" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md transition-all">
-                        Ajouter le bac
+                        Créer le bac
                     </button>
                 </div>
             </form>
