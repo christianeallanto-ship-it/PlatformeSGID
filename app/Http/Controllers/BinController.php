@@ -32,8 +32,10 @@ class BinController extends Controller
         // Pagination à 10 éléments par page
         $bins = $query->orderBy('code')->paginate(10)->withQueryString();
 
+        $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
+        $thresholdFull = \App\Helpers\SettingsHelper::get('threshold_full', 80);
         $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
-        return view('bins.index', compact('bins', 'mapCity'));
+        return view('bins.index', compact('bins', 'mapCity', 'thresholdAlmostFull', 'thresholdFull'));
     }
 
     /**

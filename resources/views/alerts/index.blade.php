@@ -10,7 +10,7 @@
             <i data-lucide="bell" class="text-red-500"></i>
             Suivi des Alertes actives & résolues
         </h1>
-        <p class="text-sm text-slate-500">Gérez les alertes automatiques déclenchées lorsque les bacs dépassent les seuils de remplissage de 60%.</p>
+        <p class="text-sm text-slate-500">Gérez les alertes automatiques déclenchées lorsque les bacs dépassent les seuils de remplissage de {{ $thresholdAlmostFull }}%.</p>
     </div>
 
     <!-- Feedback messages -->

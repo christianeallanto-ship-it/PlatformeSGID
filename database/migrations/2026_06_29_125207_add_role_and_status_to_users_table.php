@@ -15,6 +15,17 @@ return new class extends Migration
             $table->string('role')->default('Superviseur'); // 'Administrateur', 'Superviseur'
             $table->boolean('is_active')->default(true);
         });
+
+        // Insertion automatique de l'Administrateur par défaut
+        \DB::table('users')->insertOrIgnore([
+            'name' => 'Administrateur',
+            'email' => 'admin@admin.com',
+            'password' => \Hash::make('password'),
+            'role' => 'Administrateur',
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**

@@ -22,8 +22,10 @@ class AlertController extends Controller
 
         $alerts = $query->latest()->paginate(10)->withQueryString();
 
+        $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
+        $thresholdFull = \App\Helpers\SettingsHelper::get('threshold_full', 80);
         $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
-        return view('alerts.index', compact('alerts', 'mapCity'));
+        return view('alerts.index', compact('alerts', 'mapCity', 'thresholdAlmostFull', 'thresholdFull'));
     }
 
     /**

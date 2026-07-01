@@ -36,9 +36,9 @@
                 <label for="status" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Statut</label>
                 <select name="status" id="status" class="w-full text-sm border-slate-200 rounded-lg focus:ring-green-500 focus:border-green-500 py-2">
                     <option value="">Tous les statuts</option>
-                    <option value="Normal" {{ request('status') === 'Normal' ? 'selected' : '' }}>Normal (&lt; 60%)</option>
-                    <option value="Presque plein" {{ request('status') === 'Presque plein' ? 'selected' : '' }}>Presque plein (60-80%)</option>
-                    <option value="Plein" {{ request('status') === 'Plein' ? 'selected' : '' }}>Plein (&gt; 80%)</option>
+                    <option value="Normal" {{ request('status') === 'Normal' ? 'selected' : '' }}>Normal (&lt; {{ $thresholdAlmostFull }}%)</option>
+                    <option value="Presque plein" {{ request('status') === 'Presque plein' ? 'selected' : '' }}>Presque plein ({{ $thresholdAlmostFull }}-{{ $thresholdFull }}%)</option>
+                    <option value="Plein" {{ request('status') === 'Plein' ? 'selected' : '' }}>Plein (&gt;= {{ $thresholdFull }}%)</option>
                 </select>
             </div>
 
@@ -88,9 +88,9 @@
                                     <div class="w-full bg-slate-100 rounded-full h-2">
                                         @php
                                             $barColor = 'bg-green-500';
-                                            if ($bin->fill_level >= 80) {
+                                            if ($bin->fill_level >= $thresholdFull) {
                                                 $barColor = 'bg-red-500';
-                                            } elseif ($bin->fill_level >= 60) {
+                                            } elseif ($bin->fill_level >= $thresholdAlmostFull) {
                                                 $barColor = 'bg-yellow-500';
                                             }
                                         @endphp
@@ -102,9 +102,9 @@
                             <td class="px-6 py-4">
                                 @php
                                     $badgeStyle = 'bg-green-50 text-green-700 border-green-200';
-                                    if ($bin->fill_level >= 80) {
+                                    if ($bin->fill_level >= $thresholdFull) {
                                         $badgeStyle = 'bg-red-50 text-red-700 border-red-200';
-                                    } elseif ($bin->fill_level >= 60) {
+                                    } elseif ($bin->fill_level >= $thresholdAlmostFull) {
                                         $badgeStyle = 'bg-yellow-50 text-yellow-700 border-yellow-200';
                                     }
                                 @endphp

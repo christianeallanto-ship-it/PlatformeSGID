@@ -9,43 +9,26 @@
 <style>
     @media print {
         @page {
-            margin: 2cm 1.5cm 2cm 1.5cm;
-        }
-
-        .print-header-container {
-            display: flex !important;
-            position: fixed;
-            top: -1.2cm;
-            left: 0;
-            right: 0;
-            width: 100%;
-        }
-
-        .print-footer-container {
-            display: flex !important;
-            position: fixed;
-            bottom: -1.2cm;
-            left: 0;
-            right: 0;
-            width: 100%;
-        }
-
-        /* Masquer la navigation et les contrôles non nécessaires à l'impression */
-        aside, header, form, button, .no-print, .flex-row-btn {
-            display: none !important;
+            margin: 0; /* Désactive les entêtes et pieds de page natifs du navigateur (URL, date...) */
         }
         
-        /* Ajuster la zone de contenu principale */
+        /* Forcer le conteneur principal à occuper toute la largeur avec marges d'impression */
         body {
-            counter-reset: page;
             background-color: white !important;
             color: black !important;
-            font-size: 12px !important;
+            font-size: 11px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding-top: 2.2cm !important; /* Laisse de l'espace pour l'entête */
+            padding-bottom: 2.2cm !important; /* Laisse de l'espace pour le pied de page */
+            padding-left: 1.5cm !important;
+            padding-right: 1.5cm !important;
+            counter-reset: page;
         }
 
-        .print-page-num::after {
-            counter-increment: page;
-            content: counter(page);
+        /* Masquer la navigation, la barre latérale, le pied de page de l'appli et les formulaires/boutons */
+        aside, header, footer, form, button, .no-print, .flex-row-btn {
+            display: none !important;
         }
         
         main, .flex-1, .p-6, .overflow-y-auto {
@@ -56,17 +39,74 @@
             box-shadow: none !important;
             border-radius: 0 !important;
             width: 100% !important;
+            max-width: 100% !important;
         }
 
+        /* Ajuster les cartes de données pour qu'elles s'impriment proprement */
         .bg-white {
-            border: 1px solid #cbd5e1 !important;
+            background-color: white !important;
+            border: 1px solid #e2e8f0 !important;
             box-shadow: none !important;
             border-radius: 8px !important;
-            page-break-inside: avoid;
+            margin-bottom: 1rem !important;
+            padding: 1rem !important;
         }
 
+        /* Empêcher les petites cartes KPI et les lignes de tableau d'être coupées */
+        .grid > div, tr {
+            page-break-inside: avoid;
+        }
+        
+        /* Permettre aux grandes sections et tableaux de se couper entre les pages naturellement */
+        section, table {
+            page-break-inside: auto !important;
+        }
+
+        /* En-tête personnalisé pour l'impression */
+        .print-header-container {
+            display: flex !important;
+            position: fixed;
+            top: 0.8cm;
+            left: 1.5cm;
+            right: 1.5cm;
+            height: 1cm;
+            border-bottom: 1px solid #cbd5e1;
+            align-items: center;
+            justify-content: space-between;
+            font-family: sans-serif;
+            font-size: 9px;
+            color: #64748b;
+        }
+
+        /* Pied de page personnalisé pour l'impression */
+        .print-footer-container {
+            display: flex !important;
+            position: fixed;
+            bottom: 0.8cm;
+            left: 1.5cm;
+            right: 1.5cm;
+            height: 1cm;
+            border-top: 1px solid #cbd5e1;
+            align-items: center;
+            justify-content: space-between;
+            font-family: sans-serif;
+            font-size: 9px;
+            color: #64748b;
+        }
+
+        .print-page-num::after {
+            counter-increment: page;
+            content: counter(page);
+        }
+
+        /* Forcer l'affichage en grille ou flex */
         .grid {
             display: grid !important;
+        }
+
+        /* Éviter de couper les graphiques ou tableaux en milieu de page */
+        canvas, .chart-container {
+            page-break-inside: avoid;
         }
 
         .page-break {
@@ -76,21 +116,16 @@
 </style>
 
 <div class="space-y-6 print-container">
-    <!-- En-tête personnalisé pour l'impression (masqué à l'écran, visible à l'impression) -->
+    <!-- En-tête personnalisé (masqué à l'écran, affiché à l'impression) -->
     <div class="hidden print-header-container">
-        <div class="flex justify-between items-center text-[10px] text-slate-500 border-b border-slate-200 pb-2 mb-6 w-full font-sans">
-            <span class="font-bold text-slate-800">BENINCLEAN — RAPPORT D'ACTIVITÉ</span>
-            <span class="font-semibold text-slate-700">Période : @if($startDate && $endDate) du {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }} @else Toutes dates @endif</span>
-            <span>Généré le : {{ now()->format('d/m/Y H:i') }}</span>
-        </div>
+        <span class="font-bold">BENINCLEAN — RAPPORT D'ACTIVITÉ</span>
+        <span class="font-semibold text-slate-700">Période : @if($startDate && $endDate) du {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} au {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }} @else Toutes dates @endif</span>
     </div>
 
-    <!-- Pied de page personnalisé pour l'impression (masqué à l'écran, visible à l'impression) -->
+    <!-- Pied de page personnalisé (masqué à l'écran, affiché à l'impression) -->
     <div class="hidden print-footer-container">
-        <div class="flex justify-between items-center text-[10px] text-slate-500 border-t border-slate-200 pt-2 w-full font-sans">
-            <span>&copy; {{ date('Y') }} BENINCLEAN — Interface de monitoring</span>
-            <span>Page <span class="print-page-num"></span></span>
-        </div>
+        <span>&copy; {{ date('Y') }} BENINCLEAN — Interface de monitoring</span>
+        <span>Page <span class="print-page-num"></span></span>
     </div>
     <!-- Header Page -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-200 pb-5">

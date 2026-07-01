@@ -59,9 +59,7 @@
                         <th class="px-6 py-4">Rôle</th>
                         <th class="px-6 py-4">Statut</th>
                         <th class="px-6 py-4">Date d'inscription</th>
-                        @if(auth()->user()->role === 'Administrateur')
-                            <th class="px-6 py-4 text-right">Actions</th>
-                        @endif
+                        <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-600">
@@ -96,16 +94,17 @@
                             </td>
                             <td class="px-6 py-4 text-xs text-slate-400">
                                 {{ $user->created_at ? $user->created_at->format('d/m/Y H:i') : 'N/A' }}
-                            </td>
-                            @if(auth()->user()->role === 'Administrateur')
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex items-center justify-end gap-2">
+                                                       <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if(auth()->user()->role === 'Administrateur' || auth()->id() === $user->id)
                                         <!-- Edit button -->
                                         <button onclick="openEditModal({{ json_encode($user) }})" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold py-1.5 px-3 rounded-lg transition-all flex items-center gap-1">
                                             <i data-lucide="edit-2" class="w-3 h-3"></i>
                                             Modifier
                                         </button>
+                                    @endif
 
+                                    @if(auth()->user()->role === 'Administrateur')
                                         @if($user->id !== auth()->id())
                                             <!-- Toggle Active Status -->
                                             <form action="{{ route('users.toggle-status', $user->id) }}" method="POST" class="inline">
@@ -133,9 +132,9 @@
                                         @else
                                             <span class="text-xs text-slate-400 italic px-2">Vous</span>
                                         @endif
-                                    </div>
-                                </td>
-                            @endif
+                                    @endif
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
@@ -210,6 +209,8 @@
         </div>
     </div>
 
+@endif
+
     <!-- Edit User Modal -->
     <div id="editUserModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -282,8 +283,9 @@
             document.getElementById('edit_role').value = user.role;
             document.getElementById('edit_password').value = '';
 
-            // Empêcher l'administrateur connecté de se rétrograder lui-même
-            if (user.id === {{ auth()->id() }}) {
+            // Empêcher un non-administrateur de modifier les rôles, ou l'admin de se rétrograder
+            const currentRole = "{{ auth()->user()->role }}";
+            if (currentRole !== 'Administrateur' || user.id === {{ auth()->id() }}) {
                 document.getElementById('edit_role').disabled = true;
             } else {
                 document.getElementById('edit_role').disabled = false;
@@ -292,5 +294,4 @@
             toggleModal('editUserModal');
         }
     </script>
-@endif
 @endsection

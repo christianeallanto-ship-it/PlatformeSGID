@@ -55,15 +55,20 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        if (auth()->user()->role !== 'Administrateur') {
-            abort(403, 'Action non autorisée. Seuls les administrateurs peuvent gérer les utilisateurs.');
+        // Un utilisateur ne peut modifier que lui-même, sauf s'il est Administrateur
+        if (auth()->id() !== $user->id && auth()->user()->role !== 'Administrateur') {
+            abort(403, 'Action non autorisée. Seuls les administrateurs peuvent gérer les autres utilisateurs.');
         }
 
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'role' => 'required|in:Administrateur,Superviseur',
         ];
+
+        // Seul l'administrateur peut modifier les rôles, et il ne peut pas modifier son propre rôle
+        if (auth()->user()->role === 'Administrateur' && auth()->id() !== $user->id) {
+            $rules['role'] = 'required|in:Administrateur,Superviseur';
+        }
 
         if ($request->filled('password')) {
             $rules['password'] = 'required|string|min:8';
@@ -80,8 +85,8 @@ class UserController extends Controller
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
-        // Éviter de s'auto-rétrograder
-        if ($user->id !== auth()->id()) {
+        // Mettre à jour le rôle seulement si soumis et autorisé
+        if (isset($validated['role'])) {
             $user->role = $validated['role'];
         }
 
