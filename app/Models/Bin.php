@@ -55,8 +55,8 @@ class Bin extends Model
 
         $center = $villes[$mapCity] ?? $villes['Cotonou'];
         
-        // 10 km de rayon correspond à environ 0.09 degré de latitude et de longitude au Bénin.
-        $delta = 0.09;
+        // Réduction du rayon à 0.035 pour éviter le chevauchement entre Cotonou et Abomey-Calavi (environ 4 km)
+        $delta = 0.035;
 
         return $query->whereBetween('latitude', [$center['lat'] - $delta, $center['lat'] + $delta])
                      ->whereBetween('longitude', [$center['lng'] - $delta, $center['lng'] + $delta]);
