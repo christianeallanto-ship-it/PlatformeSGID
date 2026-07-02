@@ -101,6 +101,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'upcomingCollections',
             'bins',
             'center',
+            'mapCity',
             'thresholdAlmostFull',
             'thresholdFull',
             'chartLabels',
