@@ -86,9 +86,9 @@ class DatabaseSeeder extends Seeder
         $binCounter = 101;
         $allBins = [];
 
-        // 4. Création de 5 bacs réalistes par ville (50 au total)
+        // 4. Création de 10 bacs réalistes par ville (100 au total)
         foreach ($villes as $villeName => $data) {
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < 10; $i++) {
                 $fillLevel = rand(10, 95);
                 $status = 'Normal';
                 if ($fillLevel >= 80) {

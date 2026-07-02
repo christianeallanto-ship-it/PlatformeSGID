@@ -71,7 +71,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Dynamic center based on selected city
-        const map = L.map('map-large').setView([{{ $center['lat'] }}, {{ $center['lng'] }}], 13);
+        const map = L.map('map-large').setView([{{ $center['lat'] }}, {{ $center['lng'] }}], {{ $mapCity === 'Tous' ? 7 : 13 }});
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
