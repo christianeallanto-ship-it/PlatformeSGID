@@ -12,7 +12,7 @@ class MapController extends Controller
      */
     public function index()
     {
-        $bins = Bin::all();
+        $bins = Bin::inActiveCity()->get();
 
         $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
 
@@ -34,6 +34,6 @@ class MapController extends Controller
         $thresholdAlmostFull = \App\Helpers\SettingsHelper::get('threshold_almost_full', 60);
         $thresholdFull = \App\Helpers\SettingsHelper::get('threshold_full', 80);
 
-        return view('map.index', compact('bins', 'center', 'thresholdAlmostFull', 'thresholdFull'));
+        return view('map.index', compact('bins', 'center', 'thresholdAlmostFull', 'thresholdFull', 'mapCity'));
     }
 }

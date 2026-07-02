@@ -12,7 +12,7 @@ class BinController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Bin::query();
+        $query = Bin::inActiveCity();
 
         // Filtrage par statut (Normal, Presque plein, Plein)
         if ($request->filled('status')) {

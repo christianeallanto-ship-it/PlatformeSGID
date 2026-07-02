@@ -23,17 +23,21 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        $totalBins = Bin::count();
-        $normalBins = Bin::where('status', 'Normal')->count();
-        $almostFullBins = Bin::where('status', 'Presque plein')->count();
-        $fullBins = Bin::where('status', 'Plein')->count();
+        $totalBins = Bin::inActiveCity()->count();
+        $normalBins = Bin::inActiveCity()->where('status', 'Normal')->count();
+        $almostFullBins = Bin::inActiveCity()->where('status', 'Presque plein')->count();
+        $fullBins = Bin::inActiveCity()->where('status', 'Plein')->count();
         $totalUsers = User::count();
-        $totalCollections = Collection::count();
-        $totalAlerts = Alert::where('is_resolved', false)->count();
+        $totalCollections = Collection::inActiveCity()->count();
+        $totalAlerts = Alert::whereHas('bin', function ($q) {
+            $q->inActiveCity();
+        })->where('is_resolved', false)->count();
 
-        $recentAlerts = Alert::with('bin')->where('is_resolved', false)->latest()->take(5)->get();
-        $upcomingCollections = Collection::latest()->take(3)->get();
-        $bins = Bin::all();
+        $recentAlerts = Alert::with('bin')->whereHas('bin', function ($q) {
+            $q->inActiveCity();
+        })->where('is_resolved', false)->latest()->take(5)->get();
+        $upcomingCollections = Collection::inActiveCity()->latest()->take(3)->get();
+        $bins = Bin::inActiveCity()->get();
 
         $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
         $villes = [

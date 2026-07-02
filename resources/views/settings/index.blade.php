@@ -112,6 +112,7 @@
                             onchange="updateCoordinates(this.value)">
                         @php
                         $villes = [
+                            'Tous'          => ['lat' => '8.5000', 'lng' => '2.3000'],
                             'Cotonou'       => ['lat' => '6.3703', 'lng' => '2.4308'],
                             'Porto-Novo'    => ['lat' => '6.4969', 'lng' => '2.6283'],
                             'Parakou'       => ['lat' => '9.3370', 'lng' => '2.6277'],

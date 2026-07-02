@@ -20,15 +20,17 @@ class ReportController extends Controller
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
 
-        // Bacs (globaux)
-        $totalBins = Bin::count();
-        $normalBins = Bin::where('status', 'Normal')->count();
-        $almostFullBins = Bin::where('status', 'Presque plein')->count();
-        $fullBins = Bin::where('status', 'Plein')->count();
-        $averageFillLevel = round(Bin::avg('fill_level') ?? 0, 1);
+        // Bacs (filtrés par ville active)
+        $totalBins = Bin::inActiveCity()->count();
+        $normalBins = Bin::inActiveCity()->where('status', 'Normal')->count();
+        $almostFullBins = Bin::inActiveCity()->where('status', 'Presque plein')->count();
+        $fullBins = Bin::inActiveCity()->where('status', 'Plein')->count();
+        $averageFillLevel = round(Bin::inActiveCity()->avg('fill_level') ?? 0, 1);
 
-        // Filtrage des alertes
-        $alertsQuery = Alert::query();
+        // Filtrage des alertes (par rapport à la ville d'intervention active)
+        $alertsQuery = Alert::whereHas('bin', function ($q) {
+            $q->inActiveCity();
+        });
         if ($startDate) {
             $alertsQuery->whereDate('created_at', '>=', $startDate);
         }
@@ -40,8 +42,8 @@ class ReportController extends Controller
         $activeAlerts = (clone $alertsQuery)->where('is_resolved', false)->count();
         $alertsHistory = $alertsQuery->with('bin')->latest()->get();
 
-        // Filtrage des collectes
-        $collectionsQuery = Collection::query();
+        // Filtrage des collectes (par rapport à la ville active)
+        $collectionsQuery = Collection::inActiveCity();
         if ($startDate) {
             $collectionsQuery->whereDate('scheduled_at', '>=', $startDate);
         }
@@ -67,10 +69,10 @@ class ReportController extends Controller
         $chartAlmostFull = [];
         $chartFull = [];
 
-        $totalBinsCount = Bin::count() ?: 50;
-        $dbNormal = Bin::where('status', 'Normal')->count() ?: round($totalBinsCount * 0.5);
-        $dbAlmost = Bin::where('status', 'Presque plein')->count() ?: round($totalBinsCount * 0.3);
-        $dbFull = Bin::where('status', 'Plein')->count() ?: round($totalBinsCount * 0.2);
+        $totalBinsCount = Bin::inActiveCity()->count() ?: 50;
+        $dbNormal = Bin::inActiveCity()->where('status', 'Normal')->count() ?: round($totalBinsCount * 0.5);
+        $dbAlmost = Bin::inActiveCity()->where('status', 'Presque plein')->count() ?: round($totalBinsCount * 0.3);
+        $dbFull = Bin::inActiveCity()->where('status', 'Plein')->count() ?: round($totalBinsCount * 0.2);
 
         $period = CarbonPeriod::create($start, $end);
 

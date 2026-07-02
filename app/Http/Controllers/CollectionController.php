@@ -12,7 +12,7 @@ class CollectionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Collection::query();
+        $query = Collection::inActiveCity();
 
         // Filtrage par statut (Planifiée, En cours, Terminée)
         if ($request->filled('status')) {

@@ -12,7 +12,9 @@ class AlertController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Alert::with('bin');
+        $query = Alert::with('bin')->whereHas('bin', function ($q) {
+            $q->inActiveCity();
+        });
 
         // Filtrage par statut de résolution
         if ($request->filled('status')) {
