@@ -67,27 +67,39 @@ class BinController extends Controller
             'longitude' => 'nullable|numeric',
         ]);
 
-        $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
+        $villes = [
+            'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
+            'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
+            'Parakou'       => ['lat' => 9.3370,  'lng' => 2.6277],
+            'Abomey-Calavi' => ['lat' => 6.4490,  'lng' => 2.3554],
+            'Bohicon'       => ['lat' => 7.1781,  'lng' => 2.0717],
+            'Natitingou'    => ['lat' => 10.3103, 'lng' => 1.3786],
+            'Ouidah'        => ['lat' => 6.3612,  'lng' => 2.0854],
+            'Lokossa'       => ['lat' => 6.6384,  'lng' => 1.7173],
+            'Djougou'       => ['lat' => 9.7097,  'lng' => 1.6660],
+            'Kandi'         => ['lat' => 11.1344, 'lng' => 2.9389],
+        ];
 
         // Déterminer la latitude et la longitude à utiliser
         if ($request->filled('latitude') && $request->filled('longitude')) {
             $lat = (float) $validated['latitude'];
             $lng = (float) $validated['longitude'];
+
+            // Détecter automatiquement la ville la plus proche à partir des coordonnées GPS
+            $detectedCity = 'Inconnu';
+            $minDistance = PHP_INT_MAX;
+            foreach ($villes as $name => $center) {
+                $distance = sqrt(pow($lat - $center['lat'], 2) + pow($lng - $center['lng'], 2));
+                if ($distance < $minDistance) {
+                    $minDistance = $distance;
+                    $detectedCity = $name;
+                }
+            }
         } else {
             // Fallback sur le centre de la ville active + offset aléatoire
-            $villes = [
-                'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
-                'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
-                'Parakou'       => ['lat' => 9.3370,  'lng' => 2.6277],
-                'Abomey-Calavi' => ['lat' => 6.4490,  'lng' => 2.3554],
-                'Bohicon'       => ['lat' => 7.1781,  'lng' => 2.0717],
-                'Natitingou'    => ['lat' => 10.3103, 'lng' => 1.3786],
-                'Ouidah'        => ['lat' => 6.3612,  'lng' => 2.0854],
-                'Lokossa'       => ['lat' => 6.6384,  'lng' => 1.7173],
-                'Djougou'       => ['lat' => 9.7097,  'lng' => 1.6660],
-                'Kandi'         => ['lat' => 11.1344, 'lng' => 2.9389],
-            ];
-            $center = $villes[$mapCity] ?? $villes['Cotonou'];
+            $mapCity = \App\Helpers\SettingsHelper::get('map_city', 'Cotonou');
+            $detectedCity = ($mapCity === 'Tous') ? 'Cotonou' : $mapCity;
+            $center = $villes[$detectedCity] ?? $villes['Cotonou'];
             $lat = $center['lat'] + (mt_rand(-20000, 20000) / 1000000);
             $lng = $center['lng'] + (mt_rand(-35000, 35000) / 1000000);
         }
@@ -95,7 +107,7 @@ class BinController extends Controller
         $bin = Bin::firstOrNew(
             ['code' => $validated['code']],
             [
-                'location' => 'Bac connecté IOT (' . $mapCity . ')',
+                'location' => 'Bac connecté IOT (' . $detectedCity . ')',
                 'latitude' => $lat,
                 'longitude' => $lng,
                 'type' => 'Tout-venant',
@@ -106,6 +118,7 @@ class BinController extends Controller
         if ($bin->exists && $request->filled('latitude') && $request->filled('longitude')) {
             $bin->latitude = $lat;
             $bin->longitude = $lng;
+            $bin->location = 'Bac connecté IOT (' . $detectedCity . ')';
         }
 
         $bin->fill_level = $validated['fill_level'];
