@@ -60,35 +60,9 @@ class SettingsController extends Controller
         \App\Helpers\SettingsHelper::set('gps_frequency', (int) $request->gps_frequency);
         \App\Helpers\SettingsHelper::set('map_city', $mapCity);
 
-        // Coordonnées pour déplacer les bacs vers la nouvelle ville
-        $villes = [
-            'Tous'          => ['lat' => 8.5000,  'lng' => 2.3000],
-            'Cotonou'       => ['lat' => 6.3703,  'lng' => 2.4308],
-            'Porto-Novo'    => ['lat' => 6.4969,  'lng' => 2.6283],
-            'Parakou'       => ['lat' => 9.3370,  'lng' => 2.6277],
-            'Abomey-Calavi' => ['lat' => 6.4490,  'lng' => 2.3554],
-            'Bohicon'       => ['lat' => 7.1781,  'lng' => 2.0717],
-            'Natitingou'    => ['lat' => 10.3103, 'lng' => 1.3786],
-            'Ouidah'        => ['lat' => 6.3612,  'lng' => 2.0854],
-            'Lokossa'       => ['lat' => 6.6384,  'lng' => 1.7173],
-            'Djougou'       => ['lat' => 9.7097,  'lng' => 1.6660],
-            'Kandi'         => ['lat' => 11.1344, 'lng' => 2.9389],
-        ];
-
-        $center = $villes[$mapCity];
-
-        // Mettre à jour les bacs (position géographique fictive autour du centre et statut selon les nouveaux seuils)
+        // Mettre à jour les statuts des bacs selon les nouveaux seuils
         $bins = Bin::all();
         foreach ($bins as $bin) {
-            if ($mapCity !== 'Tous') {
-                // Mettre à jour la localisation fictive à l'échelle de la nouvelle ville
-                // Petit offset aléatoire de +/- 0.025 lat et +/- 0.045 lng
-                $randomLatOffset = (mt_rand(-25000, 25000) / 1000000);
-                $randomLngOffset = (mt_rand(-45000, 45000) / 1000000);
-                
-                $bin->latitude = $center['lat'] + $randomLatOffset;
-                $bin->longitude = $center['lng'] + $randomLngOffset;
-            }
 
             // Recalculer le statut en fonction des nouveaux seuils
             if ($bin->fill_level >= $thresholdFull) {
@@ -121,6 +95,6 @@ class SettingsController extends Controller
         }
 
         return redirect()->route('settings.index')
-            ->with('success', 'Paramètres enregistrés avec succès. Les coordonnées des bacs ont été repositionnées autour de ' . $mapCity . ' et leurs statuts ont été recalculés selon les nouveaux seuils.');
+            ->with('success', 'Paramètres enregistrés avec succès. Le filtre d\'affichage a été configuré sur ' . $mapCity . ' et les statuts des bacs ont été recalculés selon les nouveaux seuils.');
     }
 }
